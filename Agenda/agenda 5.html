@@ -1,0 +1,1289 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MrJack - Sistema de Agendamentos</title>
+    <style>
+        /* Estilos CSS (inalterados do seu código original) */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23dc2626' fill-opacity='0.1'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E") repeat;
+            animation: float 20s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .logo {
+            max-width: 280px;
+            height: auto;
+            margin-bottom: 15px;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
+            position: relative;
+            z-index: 2;
+        }
+
+        .header h1 {
+            font-size: 2.2em;
+            margin-bottom: 8px;
+            font-weight: 700;
+            position: relative;
+            z-index: 2;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            color: #dc2626;
+            font-weight: 600;
+            position: relative;
+            z-index: 2;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .tabs {
+            display: flex;
+            background: rgba(248, 250, 252, 0.8);
+            backdrop-filter: blur(10px);
+        }
+
+        .tab {
+            flex: 1;
+            padding: 18px;
+            text-align: center;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            color: #64748b;
+            position: relative;
+        }
+
+        .tab::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #dc2626, #ef4444);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            transform: translateX(-50%);
+            border-radius: 2px;
+        }
+
+        .tab.active {
+            color: #dc2626;
+            background: rgba(220, 38, 38, 0.05);
+        }
+
+        .tab.active::after {
+            width: 60%;
+        }
+
+        .tab:hover:not(.active) {
+            background: rgba(100, 116, 139, 0.05);
+            transform: translateY(-2px);
+        }
+
+        .content {
+            padding: 40px;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            min-height: 500px;
+        }
+
+        .form-section {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(226, 232, 240, 0.5);
+            margin-bottom: 20px;
+        }
+
+        .form-section h2 {
+            color: #1e293b;
+            margin-bottom: 25px;
+            font-size: 1.5em;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #374151;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: #fff;
+            color: #1f2937;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #dc2626;
+            box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .time-slots {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 12px;
+            margin-top: 15px;
+        }
+
+        .time-slot {
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            font-weight: 600;
+        }
+
+        .time-slot:hover {
+            border-color: #dc2626;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(220, 38, 38, 0.2);
+        }
+
+        .time-slot.selected {
+            background: linear-gradient(135deg, #dc2626, #ef4444);
+            color: white;
+            border-color: #dc2626;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(220, 38, 38, 0.3);
+        }
+
+        .time-slot.unavailable {
+            background: #f3f4f6;
+            color: #9ca3af;
+            cursor: not-allowed;
+            border-color: #e5e7eb;
+        }
+
+        .time-slot.unavailable:hover {
+            transform: none;
+            box-shadow: none;
+            border-color: #e5e7eb;
+        }
+
+        .availability-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #10b981;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .availability-badge.low {
+            background: #f59e0b;
+        }
+
+        .availability-badge.full {
+            background: #ef4444;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #dc2626, #ef4444);
+            color: white;
+            padding: 16px 32px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            width: 100%;
+            margin-top: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(220, 38, 38, 0.3);
+        }
+
+        .btn:active {
+            transform: translateY(-1px);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444, #f87171);
+            width: auto;
+            padding: 8px 16px;
+            font-size: 14px;
+            margin: 0;
+        }
+
+        .agendamento-card {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(226, 232, 240, 0.5);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .agendamento-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(135deg, #dc2626, #ef4444);
+        }
+
+        .agendamento-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+        }
+
+        .agendamento-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .agendamento-cliente {
+            font-size: 1.3em;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .agendamento-data {
+            background: linear-gradient(135deg, #dc2626, #ef4444);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(220, 38, 38, 0.3);
+        }
+
+        .agendamento-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 15px 0;
+        }
+
+        .info-item {
+            font-size: 14px;
+            color: #64748b;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .info-item strong {
+            color: #374151;
+        }
+
+        .status {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status.agendado {
+            background: linear-gradient(135deg, #3b82f6, #60a5fa);
+            color: white;
+        }
+
+        .status.concluido {
+            background: linear-gradient(135deg, #10b981, #34d399);
+            color: white;
+        }
+
+        .status.cancelado {
+            background: linear-gradient(135deg, #ef4444, #f87171);
+            color: white;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 60px;
+            color: #64748b;
+            font-size: 18px;
+        }
+
+        .loading::before {
+            content: '';
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid #e5e7eb;
+            border-top: 4px solid #dc2626;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error, .success {
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .error {
+            background: linear-gradient(135deg, #fef2f2, #fee2e2);
+            color: #dc2626;
+            border: 2px solid #fecaca;
+        }
+
+        .success {
+            background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+            color: #16a34a;
+            border: 2px solid #bbf7d0;
+        }
+
+        .config-section {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(226, 232, 240, 0.5);
+        }
+
+        .config-section h3 {
+            color: #1e293b;
+            margin-bottom: 20px;
+            font-size: 1.2em;
+            font-weight: 700;
+        }
+
+        .setup-instructions {
+            background: linear-gradient(135deg, #eff6ff, #dbeafe);
+            border-left: 4px solid #3b82f6;
+            padding: 25px;
+            margin-bottom: 25px;
+            border-radius: 12px;
+        }
+
+        .setup-instructions h3 {
+            color: #1e40af;
+            margin-bottom: 15px;
+        }
+
+        .setup-instructions p,
+        .setup-instructions ol,
+        .setup-instructions li {
+            color: #1e3a8a;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .day-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .day-btn {
+            padding: 10px 20px;
+            border: 2px solid #e5e7eb;
+            background: white;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            color: #64748b;
+        }
+
+        .day-btn.active {
+            background: linear-gradient(135deg, #dc2626, #ef4444);
+            color: white;
+            border-color: #dc2626;
+        }
+
+        .day-btn:hover:not(.active) {
+            border-color: #dc2626;
+            color: #dc2626;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 16px;
+            }
+
+            .header {
+                padding: 30px 20px;
+            }
+
+            .content {
+                padding: 25px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .agendamento-info {
+                grid-template-columns: 1fr;
+            }
+
+            .time-slots {
+                grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+                gap: 8px;
+            }
+
+            .day-selector {
+                justify-content: center;
+            }
+        }
+    </style>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDUwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLnRvcmcvMjAwMC9zdmciPgo8cmVjdCB3aWR0aD0iNTAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iIzAwMDAwMCIvPgo8dGV4dCB4PSIyNSIgeT0iMTIwIiBmb250LWZhbWlseT0iU2Vnb2UgVUksIFRhaGChbWEsIEdlbmV2YSwgVmVyZGFuYSwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSI3MiIgZm9udC13ZWlnaHQ9IjQwMCIgZmlsbD0iI2ZmZmZmZiI+TXIgSmFjazwvdGV4dD4KPGNpcmNsZSBjeD0iMzgwIiBjeT0iMTE1IiByPSI4IiBmaWxsPSIjZGMyNjI2Ii8+Cjx0ZXh0IHg9IjE1NSIgeT0iMTcwIiBmb250LWZhbWl5PSJTZWdvZSBVSSwgVGFob21hLCBHZW5ldmEsIFZlcmRhbmEsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTgiIGZvbnQtc3R5bGU9Iml0YWxpYyIgZmlsbD0iI2ZmZmZmZiI+VmVzdGUgc2V1IG1vbWVudG8hPC90ZXh0Pgo8L3N2Zz4=" alt="MrJack Logo" class="logo">
+            <h1>Sistema de Agendamentos</h1>
+            <p>Veste seu momento!</p>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('novo')">✨ Novo Agendamento</button>
+            <button class="tab" onclick="showTab('lista')">📋 Agendamentos</button>
+            <button class="tab" onclick="showTab('config')">⚙️ Configuração</button>
+        </div>
+
+        <div class="content">
+            <div id="config-tab" class="hidden">
+                <div class="setup-instructions">
+                    <h3>🔧 Configuração do Firebase</h3>
+                    <p><strong>Siga estes passos pelo celular:</strong></p>
+                    <ol style="margin: 15px 0; padding-left: 20px;">
+                        <li>Acesse <strong>console.firebase.google.com</strong></li>
+                        <li>Clique em "Criar projeto"</li>
+                        <li>Nomeie seu projeto (ex: "mrjack-agenda")</li>
+                        <li>Vá em "Firestore Database" → "Criar banco de dados"</li>
+                        <li>Escolha "Modo de teste" por enquanto</li>
+                        <li>Vá em "Configurações do projeto" → "Seus aplicativos"</li>
+                        <li>Clique no ícone "</>" para adicionar app web</li>
+                        <li>Copie as configurações abaixo:</li>
+                    </ol>
+                </div>
+
+                <div class="config-section">
+                    <h3>🔑 Configurações do Firebase</h3>
+                    <form id="configForm">
+                        <div class="form-group">
+                            <label for="apiKey">API Key:</label>
+                            <input type="text" id="apiKey" placeholder="Cole aqui sua API Key" value="AIzaSyBaDBgoPIBCyG1IFAuvIpoJ26P88tTu6dQ">
+                        </div>
+                        <div class="form-group">
+                            <label for="authDomain">Auth Domain:</label>
+                            <input type="text" id="authDomain" placeholder="seuprojeto.firebaseapp.com" value="agenda-mr-jack.firebaseapp.com">
+                        </div>
+                        <div class="form-group">
+                            <label for="projectId">Project ID:</label>
+                            <input type="text" id="projectId" placeholder="seuprojeto" value="agenda-mr-jack">
+                        </div>
+                        <button type="button" class="btn" onclick="saveConfig()">💾 Salvar Configuração</button>
+                    </form>
+                </div>
+
+                <div id="config-status"></div>
+            </div>
+
+            <div id="novo-tab">
+                <div class="form-section">
+                    <h2>✨ Novo Agendamento</h2>
+                    <div id="message-area"></div>
+                    
+                    <form id="agendamentoForm">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="cliente">👤 Nome do Cliente</label>
+                                <input type="text" id="cliente" required placeholder="Digite o nome completo">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="telefone">📞 Telefone</label>
+                                <input type="tel" id="telefone" required placeholder="(00) 00000-0000">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="email">📧 Email</label>
+                                <input type="email" id="email" placeholder="cliente@email.com">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="funcionario">👨‍💼 Atendente</label>
+                                <select id="funcionario" required>
+                                    <option value="">Selecione o atendente</option>
+                                    <option value="Ana">Ana</option>
+                                    <option value="Vitória">Vitória</option>
+                                    <option value="Luiz Pedro">Luiz Pedro</option>
+                                    <option value="Lorrayne">Lorrayne</option>
+                                    <option value="Maykol">Maykol</option>
+                                    <option value="Fillipy">Fillipy</option>
+                                    <option value="Renato">Renato</option>
+                                    <option value="Carol">Carol</option>
+                                    <option value="Augusto">Augusto</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="servico">💼 Serviço</label>
+                                <select id="servico" required>
+                                    <option value="">Selecione o serviço</option>
+                                    <option value="Atendimento">Atendimento</option>
+                                    <option value="Prova">Prova</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group full-width">
+                                <label>📅 Selecione o Mês e Ano</label>
+                                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                                    <button type="button" class="btn" style="width: auto; padding: 10px; font-size: 1em; margin: 0;" onclick="changeMonth(-1)">&#9664; Anterior</button>
+                                    <span id="currentMonthYear" style="font-weight: 600; font-size: 1.2em; flex-grow: 1; text-align: center; color: #1e293b;"></span>
+                                    <button type="button" class="btn" style="width: auto; padding: 10px; font-size: 1em; margin: 0;" onclick="changeMonth(1)">Próximo &#9654;</button>
+                                </div>
+                            </div>
+                            <div class="form-group full-width">
+                                <label>📅 Selecione o Dia</label>
+                                <div class="day-selector" id="daySelector">
+                                    </div>
+                            </div>
+
+                            <div class="form-group full-width">
+                                <label>🕐 Horários Disponíveis</label>
+                                <div class="time-slots" id="timeSlots">
+                                    <div class="loading">Selecione um dia para ver os horários</div>
+                                </div>
+                            </div>
+
+                            <div class="form-group full-width">
+                                <label for="observacoes">📝 Observações</label>
+                                <textarea id="observacoes" rows="3" placeholder="Observações adicionais (opcional)"></textarea>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn">✅ Confirmar Agendamento</button>
+                    </form>
+                </div>
+            </div>
+
+            <div id="lista-tab" class="hidden">
+                <div class="form-section">
+                    <h2>📋 Lista de Agendamentos</h2>
+                    <div id="agendamentos-list">
+                        <div class="loading">Carregando agendamentos...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Variáveis globais
+        let db = null;
+        let isConfigured = false;
+        let selectedDate = null;
+        let selectedTime = null;
+
+        // Variável global para controlar o mês/ano atual do calendário
+        let currentCalendarDate = new Date(); 
+
+        // Constante global para a data/hora atual (usada para horários passados)
+        const NOW_DATE_GLOBAL = new Date(); 
+        NOW_DATE_GLOBAL.setSeconds(0, 0); // Zera segundos e milissegundos para precisão da meia hora
+
+        // Horários de funcionamento
+        const WORKING_HOURS = {
+            start: '09:30',
+            end: '17:30',
+            workingDays: [2, 3, 4, 5] // Terça(2) a Sexta(5)
+        };
+
+        const MAX_APPOINTMENTS_PER_HOUR = 4;
+
+        // Função para mostrar abas
+        function showTab(tabName) {
+            document.querySelectorAll('[id$="-tab"]').forEach(tab => {
+                tab.classList.add('hidden');
+            });
+            
+            document.querySelectorAll('.tab').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            document.getElementById(tabName + '-tab').classList.remove('hidden');
+            const clickedTabButton = Array.from(document.querySelectorAll('.tab')).find(btn => btn.getAttribute('onclick').includes(`'${tabName}'`));
+            if (clickedTabButton) {
+                clickedTabButton.classList.add('active');
+            }
+            
+            if (tabName === 'lista') {
+                loadAgendamentos();
+            } else if (tabName === 'novo') {
+                // Ao mostrar a aba 'novo', sempre reinicializa a data do calendário para hoje
+                currentCalendarDate = new Date(); 
+                generateDaySelector(); // Garante que o calendário seja gerado e um dia selecionado
+            }
+        }
+
+        // Função para salvar configuração
+        function saveConfig() {
+            const apiKey = document.getElementById('apiKey').value;
+            const authDomain = document.getElementById('authDomain').value;
+            const projectId = document.getElementById('projectId').value;
+
+            if (!apiKey || !authDomain || !projectId) {
+                showMessage('Por favor, preencha todos os campos de configuração', 'error');
+                return;
+            }
+
+            const config = { apiKey, authDomain, projectId };
+            sessionStorage.setItem('firebaseConfig', JSON.stringify(config));
+
+            try {
+                initFirebase(config);
+                document.getElementById('config-status').innerHTML = `
+                    <div class="success">
+                        ✅ <strong>Configuração salva com sucesso!</strong><br>
+                        Agora você pode criar agendamentos normalmente.
+                    </div>
+                `;
+                isConfigured = true;
+            } catch (error) {
+                document.getElementById('config-status').innerHTML = `
+                    <div class="error">
+                        ❌ <strong>Erro na configuração:</strong><br>
+                        Verifique se os dados estão corretos: ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        // Função para inicializar Firebase
+        function initFirebase(config) {
+            const firebaseConfig = {
+                apiKey: config.apiKey,
+                authDomain: config.authDomain,
+                projectId: config.projectId,
+                storageBucket: config.projectId + ".appspot.com",
+                messagingSenderId: "792947416467",
+                appId: "1:792947416467:web:9c8aa1b17306bd4cef1c66"
+            };
+
+            if (!firebase.apps.length) {
+                firebase.initializeApp(firebaseConfig);
+            }
+            
+            db = firebase.firestore();
+            console.log('Firebase inicializado com sucesso!');
+        }
+
+        // Carregar configuração ao iniciar
+        document.addEventListener('DOMContentLoaded', () => {
+            const storedConfig = sessionStorage.getItem('firebaseConfig');
+            if (storedConfig) {
+                const config = JSON.parse(storedConfig);
+                document.getElementById('apiKey').value = config.apiKey;
+                document.getElementById('authDomain').value = config.authDomain;
+                document.getElementById('projectId').value = config.projectId;
+                try {
+                    initFirebase(config);
+                    isConfigured = true;
+                    showTab('novo'); 
+                    document.querySelector('.tab[onclick="showTab(\'novo\')"]').classList.add('active');
+                } catch (error) {
+                    document.getElementById('config-status').innerHTML = `
+                        <div class="error">
+                            ❌ <strong>Erro ao carregar configuração:</strong><br>
+                            ${error.message}. Por favor, reconfigure.
+                        </div>
+                    `;
+                    showTab('config'); 
+                    document.querySelector('.tab[onclick="showTab(\'config\')"]').classList.add('active');
+                }
+            } else {
+                // Se não houver configuração salva, preenche com os valores padrão do seu console Firebase
+                document.getElementById('apiKey').value = "AIzaSyBaDBgoPIBCyG1IFAuvIpoJ26P88tTu6dQ";
+                document.getElementById('authDomain').value = "agenda-mr-jack.firebaseapp.com";
+                document.getElementById('projectId').value = "agenda-mr-jack";
+                
+                // Tenta inicializar com os valores padrão
+                try {
+                    initFirebase({
+                        apiKey: "AIzaSyBaDBgoPIBCyG1IFAuvIpoJ26P88tTu6dQ",
+                        authDomain: "agenda-mr-jack.firebaseapp.com",
+                        projectId: "agenda-mr-jack"
+                    });
+                    isConfigured = true;
+                    showTab('novo');
+                    document.querySelector('.tab[onclick="showTab(\'novo\')"]').classList.add('active');
+                } catch (error) {
+                    document.getElementById('config-status').innerHTML = `
+                        <div class="error">
+                            ❌ <strong>Erro ao inicializar Firebase com valores padrão:</strong><br>
+                            ${error.message}. Por favor, verifique e salve a configuração.
+                        </div>
+                    `;
+                    showTab('config');
+                    document.querySelector('.tab[onclick="showTab(\'config\')"]').classList.add('active');
+                }
+            }
+        });
+
+        // Função para mostrar mensagens
+        function showMessage(message, type = 'success') {
+            const messageArea = document.getElementById('message-area');
+            messageArea.innerHTML = `<div class="${type}">${message}</div>`;
+            
+            setTimeout(() => {
+                messageArea.innerHTML = '';
+            }, 5000);
+        }
+
+        // Novas funções para navegação de mês e geração de dias
+        const TODAY_DATE = new Date();
+        TODAY_DATE.setHours(0, 0, 0, 0); // Zera hora para comparação de dia (apenas data)
+
+        function changeMonth(delta) {
+            currentCalendarDate.setMonth(currentCalendarDate.getMonth() + delta);
+            
+            const fiveYearsFromNow = new Date(TODAY_DATE);
+            fiveYearsFromNow.setFullYear(TODAY_DATE.getFullYear() + 5);
+
+            // Impedir navegar para meses ANTES do mês atual
+            if (currentCalendarDate.getFullYear() < TODAY_DATE.getFullYear() ||
+                (currentCalendarDate.getFullYear() === TODAY_DATE.getFullYear() && currentCalendarDate.getMonth() < TODAY_DATE.getMonth())) {
+                
+                currentCalendarDate = new Date(TODAY_DATE.getFullYear(), TODAY_DATE.getMonth(), 1); // Volta para o primeiro dia do mês atual
+            }
+            
+            // Impedir navegar para meses MAIS de 5 anos no futuro
+            if (currentCalendarDate > fiveYearsFromNow) {
+                currentCalendarDate = fiveYearsFromNow;
+                currentCalendarDate.setDate(1); // Garante que é o primeiro dia do mês limite
+            }
+
+            // Ao mudar o mês, resetar o dia selecionado para que o primeiro dia disponível do novo mês seja selecionado
+            selectedDate = null; 
+            generateDaySelector(); 
+        }
+
+        // Função para gerar seletor de dias
+        function generateDaySelector() {
+            const daySelector = document.getElementById('daySelector');
+            const currentMonthYearSpan = document.getElementById('currentMonthYear');
+            daySelector.innerHTML = '';
+            
+            const monthNames = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+            const daysOfWeek = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+
+            // Define o texto do mês e ano atual
+            currentMonthYearSpan.textContent = `${monthNames[currentCalendarDate.getMonth()]} de ${currentCalendarDate.getFullYear()}`;
+
+            const lastDayOfMonth = new Date(currentCalendarDate.getFullYear(), currentCalendarDate.getMonth() + 1, 0);
+
+            let firstDayFound = false; // Flag para selecionar o primeiro dia disponível
+
+            for (let i = 1; i <= lastDayOfMonth.getDate(); i++) {
+                const date = new Date(currentCalendarDate.getFullYear(), currentCalendarDate.getMonth(), i);
+                const dayOfWeek = date.getDay();
+
+                // Para comparar apenas a data, zera as horas
+                const dateOnly = new Date(date);
+                dateOnly.setHours(0,0,0,0);
+                
+                // Só exibe o botão se for um dia de funcionamento E não for um dia já passado do mês atual
+                if (WORKING_HOURS.workingDays.includes(dayOfWeek) && dateOnly >= TODAY_DATE) {
+                    const dayBtn = document.createElement('button');
+                    dayBtn.classList.add('day-btn');
+                    dayBtn.textContent = `${daysOfWeek[dayOfWeek]} ${date.getDate()}`;
+                    dayBtn.dataset.date = date.toISOString().split('T')[0]; // YYYY-MM-DD
+                    dayBtn.addEventListener('click', () => {
+                        document.querySelectorAll('.day-btn').forEach(btn => btn.classList.remove('active'));
+                        dayBtn.classList.add('active');
+                        selectedDate = dayBtn.dataset.date;
+                        selectedTime = null; // Resetar horário selecionado ao mudar o dia
+                        loadTimeSlots(selectedDate); // CHAMADA CRÍTICA AQUI
+                    });
+                    daySelector.appendChild(dayBtn);
+
+                    // Se ainda não selecionou um dia e este é o primeiro disponível, selecione-o
+                    if (!firstDayFound && !selectedDate) {
+                        selectedDate = dayBtn.dataset.date; // Marca como selecionado
+                        firstDayFound = true; // Garante que só o primeiro seja marcado
+                    }
+                }
+            }
+
+            // Após gerar todos os botões, verifica o que foi selecionado ou se precisa de seleção
+            if (selectedDate) {
+                // Tenta ativar o botão que corresponde ao selectedDate
+                const activeBtn = daySelector.querySelector(`[data-date="${selectedDate}"]`);
+                if (activeBtn) {
+                    activeBtn.classList.add('active');
+                    loadTimeSlots(selectedDate); // Carrega horários para o dia ativo
+                } else if (firstDayFound) {
+                    // Se o selectedDate não está visível (ex: mudou de mês), mas um novo primeiro dia foi encontrado
+                    daySelector.querySelector(`[data-date="${selectedDate}"]`).classList.add('active'); // Ativa o que foi definido como primeiro
+                    loadTimeSlots(selectedDate); // Carrega horários para ele
+                } else {
+                    // Nenhum dia disponível no mês atual ou para frente
+                    document.getElementById('timeSlots').innerHTML = `<div class="loading">Nenhum dia disponível para agendamento neste mês.</div>`;
+                    selectedDate = null; // Resetar se não houver dia selecionável
+                }
+            } else {
+                // Se nenhum dia foi selecionado (ex: carregamento inicial e não há dias), limpa e mostra mensagem
+                document.getElementById('timeSlots').innerHTML = `<div class="loading">Selecione um dia para ver os horários</div>`;
+            }
+        }
+
+
+        // Função para carregar horários disponíveis
+        async function loadTimeSlots(dateString) {
+            if (!db) {
+                document.getElementById('timeSlots').innerHTML = `<div class="error">Firebase não configurado. Vá para a aba "Configuração".</div>`;
+                return;
+            }
+
+            const timeSlotsDiv = document.getElementById('timeSlots');
+            timeSlotsDiv.innerHTML = `<div class="loading">Carregando horários para ${formatDate(dateString)}...</div>`;
+
+            try {
+                const appointmentsRef = db.collection('agendamentos');
+                
+                // Buscar agendamentos para a data selecionada
+                const snapshot = await appointmentsRef
+                    .where('data', '==', dateString)
+                    .get();
+                
+                const existingAppointments = {};
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    // Contar apenas agendamentos que não foram cancelados
+                    if (data.status !== 'cancelado') { 
+                        if (existingAppointments[data.hora]) {
+                            existingAppointments[data.hora]++;
+                        } else {
+                            existingAppointments[data.hora] = 1;
+                        }
+                    }
+                });
+
+                // Cria objetos Date para os limites de horário no dia selecionado
+                const startHour = parseInt(WORKING_HOURS.start.split(':')[0]);
+                const startMinute = parseInt(WORKING_HOURS.start.split(':')[1]);
+                const endHour = parseInt(WORKING_HOURS.end.split(':')[0]);
+                const endMinute = parseInt(WORKING_HOURS.end.split(':')[1]);
+
+                let loopStartTime = new Date(dateString); // Data selecionada, mas com hora 00:00:00
+                loopStartTime.setHours(startHour, startMinute, 0, 0); // Define para a hora de início do expediente
+
+                const endTime = new Date(dateString);
+                endTime.setHours(endHour, endMinute, 0, 0);
+
+                // Se o dia selecionado for HOJE, ajusta o horário de início para a próxima meia hora válida
+                const selectedDayDateOnly = new Date(dateString);
+                selectedDayDateOnly.setHours(0,0,0,0); // Apenas a data para comparação
+
+                const todayDateOnly = new Date(NOW_DATE_GLOBAL);
+                todayDateOnly.setHours(0,0,0,0); // Apenas a data de hoje para comparação
+
+                if (selectedDayDateOnly.getTime() === todayDateOnly.getTime()) { // Se o dia selecionado é HOJE
+                    let nextHalfHour = new Date(NOW_DATE_GLOBAL); // Começa da hora atual
+                    nextHalfHour.setMinutes(Math.ceil(nextHalfHour.getMinutes() / 30) * 30, 0, 0); // Arredonda para a próxima meia hora
+                    
+                    if (nextHalfHour < loopStartTime) { // Se a próxima meia hora for antes do início do expediente
+                        loopStartTime = new Date(loopStartTime); // Volta para o início do expediente
+                    } else {
+                        loopStartTime = new Date(nextHalfHour); // Senão, começa da próxima meia hora válida
+                    }
+                }
+                
+                const availableSlots = [];
+                let currentTimeSlot = new Date(loopStartTime); // Usa uma variável temporária para o loop
+
+                // Garante que o loopStartTime não passe do endTime
+                if (currentTimeSlot > endTime) {
+                    timeSlotsDiv.innerHTML = `<div class="loading">Todos os horários para este dia já passaram ou estão lotados.</div>`;
+                    return;
+                }
+                
+                while (currentTimeSlot <= endTime) {
+                    const slotHour = String(currentTimeSlot.getHours()).padStart(2, '0');
+                    const slotMinute = String(currentTimeSlot.getMinutes()).padStart(2, '0');
+                    const time = `${slotHour}:${slotMinute}`;
+                    
+                    const bookingsCount = existingAppointments[time] || 0;
+                    const isFull = bookingsCount >= MAX_APPOINTMENTS_PER_HOUR;
+                    
+                    // A flag isPastTime deve ser verificada com base na hora atual de agora
+                    const isPastTime = selectedDayDateOnly.getTime() === todayDateOnly.getTime() && currentTimeSlot < NOW_DATE_GLOBAL;
+
+
+                    let availabilityClass = '';
+                    let badgeContent = '';
+
+                    if (isFull || isPastTime) {
+                        availabilityClass = 'unavailable';
+                        if (isFull) {
+                            badgeContent = 'Cheio';
+                            availabilityClass += ' full';
+                        } else {
+                            badgeContent = 'Passado'; // Melhor para o usuário
+                        }
+                    } else if (bookingsCount > 0) {
+                        const remainingSlots = MAX_APPOINTMENTS_PER_HOUR - bookingsCount;
+                        if (remainingSlots <= 1) { // Considerar "poucas vagas" se for 1 vaga restante
+                            availabilityClass = 'low';
+                            badgeContent = `Poucas (${remainingSlots})`;
+                        } else {
+                            availabilityClass = 'available';
+                            badgeContent = `Vagas (${remainingSlots})`;
+                        }
+                    } else {
+                        availabilityClass = 'available';
+                        badgeContent = `Vagas (${MAX_APPOINTMENTS_PER_HOUR})`;
+                    }
+
+                    availableSlots.push({
+                        time,
+                        isFull,
+                        isPastTime,
+                        availabilityClass,
+                        badgeContent
+                    });
+
+                    currentTimeSlot.setMinutes(currentTimeSlot.getMinutes() + 30); // Intervalo de 30 minutos
+                }
+
+                timeSlotsDiv.innerHTML = '';
+                if (availableSlots.length === 0) {
+                    timeSlotsDiv.innerHTML = `<div class="loading">Nenhum horário disponível para este dia.</div>`;
+                    return;
+                }
+
+                availableSlots.forEach(slot => {
+                    const slotElement = document.createElement('div');
+                    slotElement.classList.add('time-slot');
+                    slotElement.textContent = slot.time;
+                    
+                    if (slot.availabilityClass) {
+                        slotElement.classList.add(slot.availabilityClass);
+                    }
+
+                    if (slot.badgeContent && !slot.isPastTime) { // Não mostrar badge para horários passados
+                        const badge = document.createElement('span');
+                        badge.classList.add('availability-badge');
+                        if (slot.availabilityClass === 'low') {
+                            badge.classList.add('low');
+                        } else if (slot.availabilityClass === 'full') {
+                            badge.classList.add('full');
+                        }
+                        badge.textContent = slot.badgeContent.split('(')[0].trim().substring(0, 1); // Apenas a primeira letra, ex: V, P, C
+                        slotElement.appendChild(badge);
+                    }
+
+                    if (!slot.isFull && !slot.isPastTime) {
+                        slotElement.addEventListener('click', () => {
+                            document.querySelectorAll('.time-slot').forEach(s => s.classList.remove('selected'));
+                            slotElement.classList.add('selected');
+                            selectedTime = slot.time;
+                        });
+                    }
+                    timeSlotsDiv.appendChild(slotElement);
+                });
+
+            } catch (error) {
+                console.error("Erro ao carregar horários:", error);
+                timeSlotsDiv.innerHTML = `<div class="error">Erro ao carregar horários: ${error.message}</div>`;
+            }
+        }
+
+        // Função para formatar data (opcional, para exibição)
+        function formatDate(dateString) {
+            const [year, month, day] = dateString.split('-');
+            return `${day}/${month}/${year}`;
+        }
+
+        // Enviar formulário de agendamento
+        document.getElementById('agendamentoForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            if (!db || !isConfigured) {
+                showMessage('Firebase não configurado. Por favor, configure na aba "Configuração".', 'error');
+                showTab('config');
+                document.querySelector('.tab[onclick="showTab(\'config\')"]').classList.add('active');
+                return;
+            }
+
+            const cliente = document.getElementById('cliente').value;
+            const telefone = document.getElementById('telefone').value;
+            const email = document.getElementById('email').value;
+            const funcionario = document.getElementById('funcionario').value;
+            const servico = document.getElementById('servico').value;
+            const observacoes = document.getElementById('observacoes').value;
+
+            if (!cliente || !telefone || !funcionario || !servico || !selectedDate || !selectedTime) {
+                showMessage('Por favor, preencha todos os campos obrigatórios e selecione um dia e horário.', 'error');
+                return;
+            }
+
+            // Validação de telefone (formato simples)
+            const phoneRegex = /^\(\d{2}\)\s\d{4,5}-\d{4}$/;
+            if (!phoneRegex.test(telefone)) {
+                showMessage('Formato de telefone inválido. Use (XX) XXXXX-XXXX ou (XX) XXXX-XXXX.', 'error');
+                return;
+            }
+
+            // Validação de e-mail (básica)
+            if (email && (!email.includes('@') || email.length < 5)) {
+                showMessage('Formato de email inválido.', 'error');
+                return;
+            }
+
+            try {
+                // Verificar disponibilidade novamente antes de agendar
+                const appointmentsRef = db.collection('agendamentos');
+                const snapshot = await appointmentsRef
+                    .where('data', '==', selectedDate)
+                    .where('hora', '==', selectedTime)
+                    .where('status', '!=', 'cancelado') // Não contar agendamentos cancelados
+                    .get();
+
+                if (snapshot.docs.length >= MAX_APPOINTMENTS_PER_HOUR) {
+                    showMessage('Este horário não está mais disponível. Por favor, selecione outro.', 'error');
+                    await loadTimeSlots(selectedDate); // Recarrega os horários para refletir a indisponibilidade
+                    return;
+                }
+
+                await db.collection('agendamentos').add({
+                    cliente,
+                    telefone,
+                    email,
+                    funcionario,
+                    servico,
+                    data: selectedDate,
+                    hora: selectedTime,
+                    observacoes,
+                    status: 'agendado', // Status inicial
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                showMessage('Agendamento realizado com sucesso!', 'success');
+                document.getElementById('agendamentoForm').reset();
+                selectedDate = null;
+                selectedTime = null;
+                document.getElementById('timeSlots').innerHTML = `<div class="loading">Selecione um dia para ver os horários</div>`;
+                // Ao resetar o formulário, reinicializa o calendário para o mês atual
+                currentCalendarDate = new Date(); 
+                generateDaySelector(); 
+            } catch (error) {
+                console.error("Erro ao adicionar agendamento:", error);
+                showMessage(`Erro ao agendar: ${error.message}`, 'error');
+            }
+        });
+
+        // Função para carregar lista de agendamentos
+        async function loadAgendamentos() {
+            if (!db || !isConfigured) {
+                document.getElementById('agendamentos-list').innerHTML = `<div class="error">Firebase não configurado. Vá para a aba "Configuração".</div>`;
+                return;
+            }
+
+            const agendamentosList = document.getElementById('agendamentos-list');
+            agendamentosList.innerHTML = `<div class="loading">Carregando agendamentos...</div>`;
+
+            try {
+                const snapshot = await db.collection('agendamentos')
+                    .orderBy('timestamp', 'desc') // Ordena por data de criação mais recente
+                    .get();
+
+                if (snapshot.empty) {
+                    agendamentosList.innerHTML = `<div class="loading">Nenhum agendamento encontrado.</div>`;
+                    return;
+                }
+
+                agendamentosList.innerHTML = '';
+                snapshot.forEach(doc => {
+                    const agendamento = doc.data();
+                    const id = doc.id;
+                    const card = document.createElement('div');
+                    card.classList.add('agendamento-card');
+                    card.innerHTML = `
+                        <div class="agendamento-header">
+                            <span class="agendamento-cliente">${agendamento.cliente}</span>
+                            <span class="agendamento-data">${formatDate(agendamento.data)} ${agendamento.hora}</span>
+                        </div>
+                        <div class="agendamento-info">
+                            <div class="info-item">📞 <strong>Telefone:</strong> ${agendamento.telefone}</div>
+                            ${agendamento.email ? `<div class="info-item">📧 <strong>Email:</strong> ${agendamento.email}</div>` : ''}
+                            <div class="info-item">👨‍💼 <strong>Atendente:</strong> ${agendamento.funcionario}</div>
+                            <div class="info-item">💼 <strong>Serviço:</strong> ${agendamento.servico}</div>
+                        </div>
+                        ${agendamento.observacoes ? `<p style="font-size: 0.9em; color: #4b5563; margin-top: 10px;"><strong>Obs:</strong> ${agendamento.observacoes}</p>` : ''}
+                        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+                            <span class="status ${agendamento.status}">${agendamento.status.charAt(0).toUpperCase() + agendamento.status.slice(1)}</span>
+                            ${agendamento.status !== 'cancelado' ? `<button class="btn btn-danger" onclick="cancelAgendamento('${id}')">Cancelar</button>` : ''}
+                            ${agendamento.status !== 'concluido' ? `<button class="btn" style="background: linear-gradient(135deg, #10b981, #34d399); width: auto; padding: 8px 16px; font-size: 14px; margin: 0;" onclick="completeAgendamento('${id}')">Concluir</button>` : ''}
+                        </div>
+                    `;
+                    agendamentosList.appendChild(card);
+                });
+
+            } catch (error) {
+                console.error("Erro ao carregar agendamentos:", error);
+                agendamentosList.innerHTML = `<div class="error">Erro ao carregar agendamentos: ${error.message}</div>`;
+            }
+        }
+
+        // Função para cancelar agendamento
+        async function cancelAgendamento(id) {
+            if (!confirm('Tem certeza que deseja cancelar este agendamento?')) {
+                return;
+            }
+            if (!db) {
+                showMessage('Firebase não configurado.', 'error');
+                return;
+            }
+            try {
+                await db.collection('agendamentos').doc(id).update({ status: 'cancelado' });
+                showMessage('Agendamento cancelado com sucesso!', 'success');
+                loadAgendamentos();
+            } catch (error) {
+                console.error("Erro ao cancelar agendamento:", error);
+                showMessage(`Erro ao cancelar agendamento: ${error.message}`, 'error');
+            }
+        }
+
+        // Função para concluir agendamento
+        async function completeAgendamento(id) {
+            if (!confirm('Tem certeza que deseja marcar este agendamento como concluído?')) {
+                return;
+            }
+            if (!db) {
+                showMessage('Firebase não configurado.', 'error');
+                return;
+            }
+            try {
+                await db.collection('agendamentos').doc(id).update({ status: 'concluido' });
+                showMessage('Agendamento concluído com sucesso!', 'success');
+                loadAgendamentos();
+            } catch (error) {
+                console.error("Erro ao concluir agendamento:", error);
+                showMessage(`Erro ao concluir agendamento: ${error.message}`, 'error');
+            }
+        }
+    </script>
+</body>
+</html>
